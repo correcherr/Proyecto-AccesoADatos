@@ -10,7 +10,7 @@ public class Trip {
     private int duration;
     private LocalDate date;
     private double cost;
-    private boolean isFinished;
+    private String status; // CAMBIADO: de isFinished a status
     private List<Professor> accompanyingProfessors;
     private String groupName;
 
@@ -23,10 +23,10 @@ public class Trip {
         this.duration = duration;
         this.date = date;
         this.cost = cost;
-        this.isFinished = false;
+        this.status = null; // Estado null hasta finalizar
     }
 
-    // Getters y Setters
+    // Getters y Setters CORREGIDOS
     public int getTripId() {
         return tripId;
     }
@@ -75,12 +75,18 @@ public class Trip {
         this.cost = cost;
     }
 
-    public boolean isFinished() {
-        return isFinished;
+    // CORREGIDO: Cambiado a String
+    public String getStatus() {
+        return status;
     }
 
-    public void setFinished(boolean finished) {
-        isFinished = finished;
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    // Método auxiliar para verificar si está finalizada
+    public boolean isFinished() {
+        return status != null && ("Finalizada".equalsIgnoreCase(status) || "Confirmada".equalsIgnoreCase(status));
     }
 
     public List<Professor> getAccompanyingProfessors() {
@@ -101,7 +107,6 @@ public class Trip {
 
     @Override
     public String toString() {
-        return tripId + " - " + destination + " (" + date + ") - " +
-                (isFinished ? "FINALIZADA" : "PENDIENTE");
+        return tripId + " - " + destination + " (" + date + ") - " + status;
     }
 }

@@ -1,7 +1,6 @@
 
 package com.mongo.view;
 
-import java.text.ParseException;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.Scanner;
@@ -45,6 +44,11 @@ public class ConsolaView {
         return leerFecha();
     }
 
+    public double pedirDouble(String etiqueta) {
+        System.out.print(etiqueta + ": ");
+        return leerDouble();
+    }
+
     public void info(String msg) {
         System.out.println(msg);
     }
@@ -79,6 +83,17 @@ public class ConsolaView {
                 return parsedDate;
             } catch (DateTimeException e) {
                 System.out.print("Introduce una fecha válida: ");
+            }
+        }
+    }
+
+    private double leerDouble() {
+        while (true) {
+            String s = sc.nextLine().trim();
+            try {
+                return Double.parseDouble(s);
+            } catch (NumberFormatException e) {
+                System.out.print("Introduce un número decimal válido: ");
             }
         }
     }

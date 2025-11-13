@@ -4,13 +4,14 @@ import com.mongo.connection.Conexion;
 import com.mongo.model.mysql.Professor;
 
 import java.sql.*;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-public class ProfessorDAO {
+public class ProfessorDAO implements Dao<Professor, Integer> {
 
-    public void createProfessor(Professor professor) throws SQLException {
+    @Override
+    public Integer create(Professor professor) {
         String sql = "INSERT INTO professors (professor_name, professor_surname, professor_birthDate, professor_phone) VALUES (?, ?, ?, ?)";
 
         try (Connection conn = Conexion.getConnection();
@@ -26,13 +27,43 @@ public class ProfessorDAO {
                 try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
                     if (generatedKeys.next()) {
                         professor.setProfessorId(generatedKeys.getInt(1));
+                        return professor.getProfessorId();
                     }
                 }
             }
+        } catch (SQLException e) {
+            System.err.println("Error al crear profesor: " + e.getMessage());
         }
+        return null;
     }
 
-    public List<Professor> getAllProfessors() throws SQLException {
+    @Override
+    public Optional<Professor> findById(Integer id) {
+        String sql = "SELECT * FROM professors WHERE professor_Id = ?";
+
+        try (Connection conn = Conexion.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    Professor professor = new Professor();
+                    professor.setProfessorId(rs.getInt("professor_Id"));
+                    professor.setName(rs.getString("professor_name"));
+                    professor.setSurname(rs.getString("professor_surname"));
+                    professor.setBirthDate(rs.getDate("professor_birthDate").toLocalDate());
+                    professor.setPhone(rs.getString("professor_phone"));
+                    return Optional.of(professor);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener profesor: " + e.getMessage());
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public List<Professor> findAll() {
         List<Professor> professors = new ArrayList<>();
         String sql = "SELECT * FROM professors ORDER BY professor_name, professor_surname";
 
@@ -49,30 +80,22 @@ public class ProfessorDAO {
                 professor.setPhone(rs.getString("professor_phone"));
                 professors.add(professor);
             }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener profesores: " + e.getMessage());
         }
         return professors;
     }
 
-    public Professor getProfessorById(int id) throws SQLException {
-        String sql = "SELECT * FROM professors WHERE professor_Id = ?";
+    @Override
+    public boolean update(Professor t) {
+        // No implementado para profesores
+        return false;
+    }
 
-        try (Connection conn = Conexion.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setInt(1, id);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    Professor professor = new Professor();
-                    professor.setProfessorId(rs.getInt("professor_Id"));
-                    professor.setName(rs.getString("professor_name"));
-                    professor.setSurname(rs.getString("professor_surname"));
-                    professor.setBirthDate(rs.getDate("professor_birthDate").toLocalDate());
-                    professor.setPhone(rs.getString("professor_phone"));
-                    return professor;
-                }
-            }
-        }
-        return null;
+    @Override
+    public boolean delete(Integer id) {
+        // No implementado para profesores
+        return false;
     }
 
     public boolean existsProfessorWithPhone(String phone) throws SQLException {

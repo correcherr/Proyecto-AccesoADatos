@@ -13,34 +13,41 @@ public class GroupService {
         this.groupDAO = new GroupDAO();
     }
 
+    private boolean validateFieldsGroups(String groupName, String educationalStage, int numberOfStudents) {
+        if (groupName == null || groupName.trim().isEmpty()) {
+            System.out.println("Error: El nombre del grupo no puede estar vacío.");
+            return false;
+        }
+        if (!educationalStage.equals("ESO") && !educationalStage.equals("Batxillerat") && !educationalStage.equals("FP")) {
+            System.out.println("Error: La etapa educativa debe ser ESO, Batxillerat o FP.");
+            return false;
+        }
+        if (numberOfStudents <= 0) {
+            System.out.println("Error: El número de estudiantes debe ser mayor que 0.");
+            return false;
+        }
+        return true;
+    }
+    
     public boolean createGroup(String groupName, String educationalStage, int numberOfStudents) {
         try {
-            // Validaciones
-            if (groupName == null || groupName.trim().isEmpty()) {
-                System.out.println("Error: El nombre del grupo no puede estar vacío.");
+            if (!validateFieldsGroups(groupName, educationalStage, numberOfStudents)) {
                 return false;
             }
-            if (!educationalStage.equals("ESO") && !educationalStage.equals("Batxillerat")
-                    && !educationalStage.equals("FP")) {
-                System.out.println("Error: La etapa educativa debe ser ESO, Batxillerat o FP.");
-                return false;
-            }
-            if (numberOfStudents <= 0) {
-                System.out.println("Error: El número de estudiantes debe ser mayor que 0.");
-                return false;
-            }
-
-            // Verificar duplicados
+            
             if (groupDAO.existsGroupName(groupName.trim())) {
                 System.out.println("Error: Ya existe un grupo con este nombre.");
                 return false;
             }
-
+            
             Group group = new Group(groupName.trim(), educationalStage, numberOfStudents);
-            groupDAO.createGroup(group);
-            System.out.println("Grupo creado exitosamente con ID: " + group.getGroupId());
-            return true;
-
+            Integer groupId = groupDAO.create(group);
+            if (groupId != null) {
+                System.out.println("Grupo creado exitosamente con ID: " + groupId);
+                return true;
+            }
+            return false;
+            
         } catch (SQLException e) {
             System.err.println("Error al crear grupo: " + e.getMessage());
             return false;
@@ -48,12 +55,7 @@ public class GroupService {
     }
 
     public List<Group> getAllGroups() {
-        try {
-            return groupDAO.getAllGroups();
-        } catch (SQLException e) {
-            System.err.println("Error al obtener grupos: " + e.getMessage());
-            return List.of();
-        }
+        return groupDAO.findAll();
     }
 
     public boolean deleteGroup(int groupId) {
@@ -64,9 +66,11 @@ public class GroupService {
                 return false;
             }
 
-            groupDAO.deleteGroup(groupId);
-            System.out.println("Grupo eliminado exitosamente.");
-            return true;
+            if (groupDAO.delete(groupId)) {
+                System.out.println("Grupo eliminado exitosamente.");
+                return true;
+            }
+            return false;
 
         } catch (SQLException e) {
             System.err.println("Error al eliminar grupo: " + e.getMessage());
@@ -75,11 +79,6 @@ public class GroupService {
     }
 
     public Group getGroupById(int id) {
-        try {
-            return groupDAO.getGroupById(id);
-        } catch (SQLException e) {
-            System.err.println("Error al obtener grupo: " + e.getMessage());
-            return null;
-        }
+        return groupDAO.findById(id).orElse(null);
     }
 }

@@ -13,38 +13,45 @@ public class ProfessorService {
     public ProfessorService() {
         this.professorDAO = new ProfessorDAO();
     }
-
+    private boolean validateFieldsProfessor(String name, String surname, LocalDate birthDate, String phone) {
+        if (name == null || name.trim().isEmpty()) {
+            System.out.println("Error: El nombre no puede estar vacío.");
+            return false;
+        }
+        if (surname == null || surname.trim().isEmpty()) {
+            System.out.println("Error: Los apellidos no pueden estar vacíos.");
+            return false;
+        }
+        if (birthDate == null || birthDate.isAfter(LocalDate.now())) {
+            System.out.println("Error: La fecha de nacimiento debe ser anterior a la fecha actual.");
+            return false;
+        }
+        if (phone == null || phone.trim().isEmpty()) {
+            System.out.println("Error: El teléfono no puede estar vacío.");
+            return false;
+        }
+        return true;
+    }
+    
     public boolean createProfessor(String name, String surname, LocalDate birthDate, String phone) {
         try {
-            // Validaciones
-            if (name == null || name.trim().isEmpty()) {
-                System.out.println("Error: El nombre no puede estar vacío.");
+            if (!validateFieldsProfessor(name, surname, birthDate, phone)) {
                 return false;
             }
-            if (surname == null || surname.trim().isEmpty()) {
-                System.out.println("Error: Los apellidos no pueden estar vacíos.");
-                return false;
-            }
-            if (birthDate == null || birthDate.isAfter(LocalDate.now())) {
-                System.out.println("Error: La fecha de nacimiento debe ser anterior a la fecha actual.");
-                return false;
-            }
-            if (phone == null || phone.trim().isEmpty() || phone.length() != 9) {
-                System.out.println("Error: El teléfono no puede estar vacío y tiene que tener exactamente 9 dígitos.");
-                return false;
-            }
-
-            // Verificar duplicados por teléfono
+            
             if (professorDAO.existsProfessorWithPhone(phone)) {
                 System.out.println("Error: Ya existe un profesor con este número de teléfono.");
                 return false;
             }
-
+            
             Professor professor = new Professor(name.trim(), surname.trim(), birthDate, phone.trim());
-            professorDAO.createProfessor(professor);
-            System.out.println("Profesor creado exitosamente con ID: " + professor.getProfessorId());
-            return true;
-
+            Integer professorId = professorDAO.create(professor);
+            if (professorId != null) {
+                System.out.println("Profesor creado exitosamente con ID: " + professorId);
+                return true;
+            }
+            return false;
+            
         } catch (SQLException e) {
             System.err.println("Error al crear profesor: " + e.getMessage());
             return false;
@@ -52,20 +59,10 @@ public class ProfessorService {
     }
 
     public List<Professor> getAllProfessors() {
-        try {
-            return professorDAO.getAllProfessors();
-        } catch (SQLException e) {
-            System.err.println("Error al obtener profesores: " + e.getMessage());
-            return List.of();
-        }
+        return professorDAO.findAll();
     }
 
     public Professor getProfessorById(int id) {
-        try {
-            return professorDAO.getProfessorById(id);
-        } catch (SQLException e) {
-            System.err.println("Error al obtener profesor: " + e.getMessage());
-            return null;
-        }
+        return professorDAO.findById(id).orElse(null);
     }
 }

@@ -6,11 +6,13 @@ import com.mongo.model.mysql.Group;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-public class GroupDAO {
+public class GroupDAO implements Dao<Group, Integer> {
 
-    public void createGroup(Group group) throws SQLException {
-        String sql = "INSERT INTO groups (group_name, educationalStage, numberOfStudents) VALUES (?, ?, ?)";
+    @Override
+    public Integer create(Group group) {
+        String sql = "INSERT INTO `Groups` (group_name, educationalStage, numberOfStudents) VALUES (?, ?, ?)";
 
         try (Connection conn = Conexion.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -24,15 +26,44 @@ public class GroupDAO {
                 try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
                     if (generatedKeys.next()) {
                         group.setGroupId(generatedKeys.getInt(1));
+                        return group.getGroupId();
                     }
                 }
             }
+        } catch (SQLException e) {
+            System.err.println("Error al crear grupo: " + e.getMessage());
         }
+        return null;
     }
 
-    public List<Group> getAllGroups() throws SQLException {
+    @Override
+    public Optional<Group> findById(Integer id) {
+        String sql = "SELECT * FROM `Groups` WHERE group_Id = ?";
+
+        try (Connection conn = Conexion.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    Group group = new Group();
+                    group.setGroupId(rs.getInt("group_Id"));
+                    group.setGroupName(rs.getString("group_name"));
+                    group.setEducationalStage(rs.getString("educationalStage"));
+                    group.setNumberOfStudents(rs.getInt("numberOfStudents"));
+                    return Optional.of(group);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener grupo: " + e.getMessage());
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public List<Group> findAll() {
         List<Group> groups = new ArrayList<>();
-        String sql = "SELECT * FROM groups ORDER BY group_name";
+        String sql = "SELECT * FROM `Groups` ORDER BY group_name";
 
         try (Connection conn = Conexion.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql);
@@ -46,39 +77,31 @@ public class GroupDAO {
                 group.setNumberOfStudents(rs.getInt("numberOfStudents"));
                 groups.add(group);
             }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener grupos: " + e.getMessage());
         }
         return groups;
     }
 
-    public Group getGroupById(int id) throws SQLException {
-        String sql = "SELECT * FROM groups WHERE group_Id = ?";
+    @Override
+    public boolean update(Group t) {
+        // No implementado para grupos
+        return false;
+    }
+
+    @Override
+    public boolean delete(Integer id) {
+        String sql = "DELETE FROM `Groups` WHERE group_Id = ?";
 
         try (Connection conn = Conexion.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, id);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    Group group = new Group();
-                    group.setGroupId(rs.getInt("group_Id"));
-                    group.setGroupName(rs.getString("group_name"));
-                    group.setEducationalStage(rs.getString("educationalStage"));
-                    group.setNumberOfStudents(rs.getInt("numberOfStudents"));
-                    return group;
-                }
-            }
-        }
-        return null;
-    }
-
-    public void deleteGroup(int groupId) throws SQLException {
-        String sql = "DELETE FROM groups WHERE group_Id = ?";
-
-        try (Connection conn = Conexion.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setInt(1, groupId);
             stmt.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            System.err.println("Error al eliminar grupo: " + e.getMessage());
+            return false;
         }
     }
 
@@ -99,7 +122,7 @@ public class GroupDAO {
     }
 
     public boolean existsGroupName(String groupName) throws SQLException {
-        String sql = "SELECT COUNT(*) FROM groups WHERE group_name = ?";
+        String sql = "SELECT COUNT(*) FROM `Groups` WHERE group_name = ?";
 
         try (Connection conn = Conexion.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {

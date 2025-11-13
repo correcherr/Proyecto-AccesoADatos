@@ -17,7 +17,7 @@ public class Application {
             MongoConnection.getDatabase();
             System.out.println("Conexiones establecidas correctamente.");
 
-            menuController.showMainMenu();
+            menuController.menu();
 
         } catch (Exception e) {
             System.err.println("Error al conectar con las bases de datos: " + e.getMessage());

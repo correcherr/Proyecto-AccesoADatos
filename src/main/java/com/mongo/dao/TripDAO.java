@@ -8,17 +8,18 @@ import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-public class TripDAO {
+public class TripDAO implements Dao<Trip, Integer> {
 
-    public void createTrip(Trip trip) throws SQLException {
+    @Override
+    public Integer create(Trip trip) {
         Connection conn = null;
         try {
             conn = Conexion.getConnection();
             conn.setAutoCommit(false);
 
-            // Insertar excursión
-            String sqlTrip = "INSERT INTO trips (class_Id, trip_destination, trip_duration, trip_date, trip_cost) VALUES (?, ?, ?, ?, ?)";
+            String sqlTrip = "INSERT INTO trips (group_Id, trip_destination, trip_duration, trip_date, trip_cost, trip_status) VALUES (?, ?, ?, ?, ?, ?)";
             int tripId;
 
             try (PreparedStatement stmt = conn.prepareStatement(sqlTrip, Statement.RETURN_GENERATED_KEYS)) {
@@ -27,6 +28,7 @@ public class TripDAO {
                 stmt.setInt(3, trip.getDuration());
                 stmt.setDate(4, Date.valueOf(trip.getDate()));
                 stmt.setDouble(5, trip.getCost());
+                stmt.setString(6, trip.getStatus() != null ? trip.getStatus() : "Pendiente");
 
                 int affectedRows = stmt.executeUpdate();
                 if (affectedRows == 0) {
@@ -43,10 +45,9 @@ public class TripDAO {
                 }
             }
 
-            // Insertar profesores acompañantes
             if (trip.getAccompanyingProfessors() != null && !trip.getAccompanyingProfessors().isEmpty()) {
-                String sqlprofessors = "INSERT INTO professorsgoing (trip_id, professor_id) VALUES (?, ?)";
-                try (PreparedStatement stmt = conn.prepareStatement(sqlprofessors)) {
+                String sqlProfessors = "INSERT INTO professorsgoing (trip_id, professor_id) VALUES (?, ?)";
+                try (PreparedStatement stmt = conn.prepareStatement(sqlProfessors)) {
                     for (Professor professor : trip.getAccompanyingProfessors()) {
                         stmt.setInt(1, tripId);
                         stmt.setInt(2, professor.getProfessorId());
@@ -57,32 +58,66 @@ public class TripDAO {
             }
 
             conn.commit();
+            return tripId;
 
         } catch (SQLException e) {
             if (conn != null) {
-                conn.rollback();
+                try {
+                    conn.rollback();
+                } catch (SQLException ex) {
+                    System.err.println("Error al hacer rollback: " + ex.getMessage());
+                }
             }
-            throw e;
+            System.err.println("Error al crear excursión: " + e.getMessage());
+            return null;
         } finally {
             if (conn != null) {
-                conn.setAutoCommit(true);
+                try {
+                    conn.setAutoCommit(true);
+                } catch (SQLException e) {
+                    System.err.println("Error al resetear autocommit: " + e.getMessage());
+                }
             }
         }
     }
 
-    public List<Trip> getAllTripsWithProfessors() throws SQLException {
+    @Override
+    public Optional<Trip> findById(Integer id) {
+        String sql = "SELECT * FROM trips WHERE trips_id = ?";
+
+        try (Connection conn = Conexion.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    Trip trip = new Trip();
+                    trip.setTripId(rs.getInt("trips_id"));
+                    trip.setGroupId(rs.getInt("group_Id"));
+                    trip.setDestination(rs.getString("trip_destination"));
+                    trip.setDuration(rs.getInt("trip_duration"));
+                    trip.setDate(rs.getDate("trip_date").toLocalDate());
+                    trip.setCost(rs.getDouble("trip_cost"));
+                    trip.setStatus(rs.getString("trip_status"));
+                    return Optional.of(trip);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener excursión: " + e.getMessage());
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public List<Trip> findAll() {
         List<Trip> trips = new ArrayList<>();
         String sql = """
-                SELECT t.trips_id, t.trip_destination, t.trip_duration, t.trip_date, t.trip_cost, t.trip_status,
-                       c.class_name as group_name,
-                       GROUP_CONCAT(CONCAT(prof.professor_name, ' ', prof.professor_surname) SEPARATOR ', ') as professors
-                FROM trips t
-                JOIN classes c ON t.class_Id = c.class_Id
-                LEFT JOIN professorsgoing tg ON t.trips_id = tg.trip_id
-                LEFT JOIN professors prof ON tg.professor_id = prof.professor_Id
-                GROUP BY t.trips_id
-                ORDER BY t.trip_date DESC
-                """;
+            SELECT t.trips_id, t.trip_destination, t.trip_duration, t.trip_date, 
+                   t.trip_cost, t.trip_status, g.group_name, g.educationalStage
+            FROM trips t
+            JOIN `Groups` g ON t.group_Id = g.group_Id
+            ORDER BY t.trip_date
+            """;
 
         try (Connection conn = Conexion.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql);
@@ -95,23 +130,58 @@ public class TripDAO {
                 trip.setDuration(rs.getInt("trip_duration"));
                 trip.setDate(rs.getDate("trip_date").toLocalDate());
                 trip.setCost(rs.getDouble("trip_cost"));
-                trip.setFinished(rs.getBoolean("trip_status"));
+                trip.setStatus(rs.getString("trip_status"));
                 trip.setGroupName(rs.getString("group_name"));
                 trips.add(trip);
             }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener excursiones: " + e.getMessage());
         }
         return trips;
+    }
+
+    @Override
+    public boolean update(Trip t) {
+        String sql = "UPDATE trips SET trip_date = ? WHERE trips_id = ? AND trip_status = 'Pendiente'";
+
+        try (Connection conn = Conexion.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setDate(1, Date.valueOf(t.getDate()));
+            stmt.setInt(2, t.getTripId());
+            int affectedRows = stmt.executeUpdate();
+            return affectedRows > 0;
+        } catch (SQLException e) {
+            System.err.println("Error al actualizar excursión: " + e.getMessage());
+            return false;
+        }
+    }
+
+    @Override
+    public boolean delete(Integer id) {
+        String sql = "DELETE FROM trips WHERE trips_id = ? AND trip_status = 'Pendiente'";
+
+        try (Connection conn = Conexion.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, id);
+            int affectedRows = stmt.executeUpdate();
+            return affectedRows > 0;
+        } catch (SQLException e) {
+            System.err.println("Error al eliminar excursión: " + e.getMessage());
+            return false;
+        }
     }
 
     public List<Trip> getFinishedTripsBetweenDates(LocalDate startDate, LocalDate endDate) throws SQLException {
         List<Trip> trips = new ArrayList<>();
         String sql = """
-                SELECT t.*, c.class_name as group_name
-                FROM trips t
-                JOIN classes c ON t.class_Id = c.class_Id
-                WHERE t.status = true AND t.trip_date BETWEEN ? AND ?
-                ORDER BY t.trip_date
-                """;
+            SELECT t.*, g.group_name
+            FROM trips t
+            JOIN `Groups` g ON t.group_Id = g.group_Id
+            WHERE t.trip_status = 'Finalizada' AND t.trip_date BETWEEN ? AND ?
+            ORDER BY t.trip_date
+            """;
 
         try (Connection conn = Conexion.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -127,7 +197,7 @@ public class TripDAO {
                     trip.setDuration(rs.getInt("trip_duration"));
                     trip.setDate(rs.getDate("trip_date").toLocalDate());
                     trip.setCost(rs.getDouble("trip_cost"));
-                    trip.setFinished(rs.getBoolean("trip_status"));
+                    trip.setStatus(rs.getString("trip_status"));
                     trip.setGroupName(rs.getString("group_name"));
                     trips.add(trip);
                 }
@@ -136,31 +206,8 @@ public class TripDAO {
         return trips;
     }
 
-    public void deleteTrip(int tripId) throws SQLException {
-        String sql = "DELETE FROM trips WHERE trips_id = ? AND trip_status = false";
-
-        try (Connection conn = Conexion.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setInt(1, tripId);
-            stmt.executeUpdate();
-        }
-    }
-
-    public void updateTripDate(int tripId, LocalDate newDate) throws SQLException {
-        String sql = "UPDATE trips SET trip_date = ? WHERE trips_id = ? AND trip_status = false";
-
-        try (Connection conn = Conexion.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setDate(1, Date.valueOf(newDate));
-            stmt.setInt(2, tripId);
-            stmt.executeUpdate();
-        }
-    }
-
     public void markTripAsFinished(int tripId) throws SQLException {
-        String sql = "UPDATE trips SET trip_status = true WHERE trips_id = ?";
+        String sql = "UPDATE trips SET trip_status = 'Finalizada' WHERE trips_id = ?";
 
         try (Connection conn = Conexion.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -168,30 +215,6 @@ public class TripDAO {
             stmt.setInt(1, tripId);
             stmt.executeUpdate();
         }
-    }
-
-    public Trip getTripById(int tripId) throws SQLException {
-        String sql = "SELECT * FROM trips WHERE trips_id = ?";
-
-        try (Connection conn = Conexion.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setInt(1, tripId);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    Trip trip = new Trip();
-                    trip.setTripId(rs.getInt("trips_id"));
-                    trip.setGroupId(rs.getInt("class_Id"));
-                    trip.setDestination(rs.getString("trip_destination"));
-                    trip.setDuration(rs.getInt("trip_duration"));
-                    trip.setDate(rs.getDate("trip_date").toLocalDate());
-                    trip.setCost(rs.getDouble("trip_cost"));
-                    trip.setFinished(rs.getBoolean("trip_status"));
-                    return trip;
-                }
-            }
-        }
-        return null;
     }
 
     public List<Professor> getProfessorsForTrip(int tripId) throws SQLException {
