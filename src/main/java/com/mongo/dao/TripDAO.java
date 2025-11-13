@@ -45,11 +45,11 @@ public class TripDAO {
 
             // Insertar profesores acompañantes
             if (trip.getAccompanyingProfessors() != null && !trip.getAccompanyingProfessors().isEmpty()) {
-                String sqlTeachers = "INSERT INTO teachersgoing (trip_id, teacher_id) VALUES (?, ?)";
-                try (PreparedStatement stmt = conn.prepareStatement(sqlTeachers)) {
+                String sqlprofessors = "INSERT INTO professorsgoing (trip_id, professor_id) VALUES (?, ?)";
+                try (PreparedStatement stmt = conn.prepareStatement(sqlprofessors)) {
                     for (Professor professor : trip.getAccompanyingProfessors()) {
                         stmt.setInt(1, tripId);
-                        stmt.setInt(2, professor.getTeacherId());
+                        stmt.setInt(2, professor.getProfessorId());
                         stmt.addBatch();
                     }
                     stmt.executeBatch();
@@ -73,13 +73,13 @@ public class TripDAO {
     public List<Trip> getAllTripsWithProfessors() throws SQLException {
         List<Trip> trips = new ArrayList<>();
         String sql = """
-                SELECT t.trips_id, t.trip_destination, t.trip_duration, t.trip_date, t.trip_cost, t.is_finished,
+                SELECT t.trips_id, t.trip_destination, t.trip_duration, t.trip_date, t.trip_cost, t.trip_status,
                        c.class_name as group_name,
-                       GROUP_CONCAT(CONCAT(prof.teacher_name, ' ', prof.teacher_surname) SEPARATOR ', ') as professors
+                       GROUP_CONCAT(CONCAT(prof.professor_name, ' ', prof.professor_surname) SEPARATOR ', ') as professors
                 FROM trips t
                 JOIN classes c ON t.class_Id = c.class_Id
-                LEFT JOIN teachersgoing tg ON t.trips_id = tg.trip_id
-                LEFT JOIN teachers prof ON tg.teacher_id = prof.teacher_Id
+                LEFT JOIN professorsgoing tg ON t.trips_id = tg.trip_id
+                LEFT JOIN professors prof ON tg.professor_id = prof.professor_Id
                 GROUP BY t.trips_id
                 ORDER BY t.trip_date DESC
                 """;
@@ -95,7 +95,7 @@ public class TripDAO {
                 trip.setDuration(rs.getInt("trip_duration"));
                 trip.setDate(rs.getDate("trip_date").toLocalDate());
                 trip.setCost(rs.getDouble("trip_cost"));
-                trip.setFinished(rs.getBoolean("is_finished"));
+                trip.setFinished(rs.getBoolean("trip_status"));
                 trip.setGroupName(rs.getString("group_name"));
                 trips.add(trip);
             }
@@ -109,7 +109,7 @@ public class TripDAO {
                 SELECT t.*, c.class_name as group_name
                 FROM trips t
                 JOIN classes c ON t.class_Id = c.class_Id
-                WHERE t.is_finished = true AND t.trip_date BETWEEN ? AND ?
+                WHERE t.status = true AND t.trip_date BETWEEN ? AND ?
                 ORDER BY t.trip_date
                 """;
 
@@ -127,7 +127,7 @@ public class TripDAO {
                     trip.setDuration(rs.getInt("trip_duration"));
                     trip.setDate(rs.getDate("trip_date").toLocalDate());
                     trip.setCost(rs.getDouble("trip_cost"));
-                    trip.setFinished(rs.getBoolean("is_finished"));
+                    trip.setFinished(rs.getBoolean("trip_status"));
                     trip.setGroupName(rs.getString("group_name"));
                     trips.add(trip);
                 }
@@ -137,7 +137,7 @@ public class TripDAO {
     }
 
     public void deleteTrip(int tripId) throws SQLException {
-        String sql = "DELETE FROM trips WHERE trips_id = ? AND is_finished = false";
+        String sql = "DELETE FROM trips WHERE trips_id = ? AND trip_status = false";
 
         try (Connection conn = Conexion.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -148,7 +148,7 @@ public class TripDAO {
     }
 
     public void updateTripDate(int tripId, LocalDate newDate) throws SQLException {
-        String sql = "UPDATE trips SET trip_date = ? WHERE trips_id = ? AND is_finished = false";
+        String sql = "UPDATE trips SET trip_date = ? WHERE trips_id = ? AND trip_status = false";
 
         try (Connection conn = Conexion.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -160,7 +160,7 @@ public class TripDAO {
     }
 
     public void markTripAsFinished(int tripId) throws SQLException {
-        String sql = "UPDATE trips SET is_finished = true WHERE trips_id = ?";
+        String sql = "UPDATE trips SET trip_status = true WHERE trips_id = ?";
 
         try (Connection conn = Conexion.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -186,7 +186,7 @@ public class TripDAO {
                     trip.setDuration(rs.getInt("trip_duration"));
                     trip.setDate(rs.getDate("trip_date").toLocalDate());
                     trip.setCost(rs.getDouble("trip_cost"));
-                    trip.setFinished(rs.getBoolean("is_finished"));
+                    trip.setFinished(rs.getBoolean("trip_status"));
                     return trip;
                 }
             }
@@ -197,8 +197,8 @@ public class TripDAO {
     public List<Professor> getProfessorsForTrip(int tripId) throws SQLException {
         List<Professor> professors = new ArrayList<>();
         String sql = """
-                SELECT p.* FROM teachers p
-                JOIN teachersgoing tg ON p.teacher_Id = tg.teacher_id
+                SELECT p.* FROM professors p
+                JOIN professorsgoing tg ON p.professor_Id = tg.professor_id
                 WHERE tg.trip_id = ?
                 """;
 
@@ -209,11 +209,11 @@ public class TripDAO {
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     Professor professor = new Professor();
-                    professor.setTeacherId(rs.getInt("teacher_Id"));
-                    professor.setName(rs.getString("teacher_name"));
-                    professor.setSurname(rs.getString("teacher_surname"));
-                    professor.setBirthDate(rs.getDate("teacher_birthDate").toLocalDate());
-                    professor.setPhone(rs.getString("teacher_phone"));
+                    professor.setProfessorId(rs.getInt("professor_Id"));
+                    professor.setName(rs.getString("professor_name"));
+                    professor.setSurname(rs.getString("professor_surname"));
+                    professor.setBirthDate(rs.getDate("professor_birthDate").toLocalDate());
+                    professor.setPhone(rs.getString("professor_phone"));
                     professors.add(professor);
                 }
             }

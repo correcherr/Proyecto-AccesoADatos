@@ -3,7 +3,7 @@ package com.mongo.model.mysql;
 import java.time.LocalDate;
 
 public class Professor {
-    private int teacherId;
+    private int professorId;
     private String name;
     private String surname;
     private LocalDate birthDate;
@@ -20,12 +20,12 @@ public class Professor {
     }
 
     // Getters y Setters
-    public int getTeacherId() {
-        return teacherId;
+    public int getProfessorId() {
+        return professorId;
     }
 
-    public void setTeacherId(int teacherId) {
-        this.teacherId = teacherId;
+    public void setProfessorId(int teacherId) {
+        this.professorId = teacherId;
     }
 
     public String getName() {
@@ -62,6 +62,6 @@ public class Professor {
 
     @Override
     public String toString() {
-        return teacherId + " - " + name + " " + surname + " (" + phone + ")";
+        return professorId + " - " + name + " " + surname + " (" + phone + ")";
     }
 }

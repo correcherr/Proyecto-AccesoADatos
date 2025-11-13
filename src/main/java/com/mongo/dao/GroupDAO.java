@@ -10,7 +10,7 @@ import java.util.List;
 public class GroupDAO {
 
     public void createGroup(Group group) throws SQLException {
-        String sql = "INSERT INTO classes (class_name, educationalStage, numberOfStudents) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO groups (group_name, educationalStage, numberOfStudents) VALUES (?, ?, ?)";
 
         try (Connection conn = Conexion.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -32,7 +32,7 @@ public class GroupDAO {
 
     public List<Group> getAllGroups() throws SQLException {
         List<Group> groups = new ArrayList<>();
-        String sql = "SELECT * FROM classes ORDER BY class_name";
+        String sql = "SELECT * FROM groups ORDER BY group_name";
 
         try (Connection conn = Conexion.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql);
@@ -40,8 +40,8 @@ public class GroupDAO {
 
             while (rs.next()) {
                 Group group = new Group();
-                group.setGroupId(rs.getInt("class_Id"));
-                group.setGroupName(rs.getString("class_name"));
+                group.setGroupId(rs.getInt("group_Id"));
+                group.setGroupName(rs.getString("group_name"));
                 group.setEducationalStage(rs.getString("educationalStage"));
                 group.setNumberOfStudents(rs.getInt("numberOfStudents"));
                 groups.add(group);
@@ -51,7 +51,7 @@ public class GroupDAO {
     }
 
     public Group getGroupById(int id) throws SQLException {
-        String sql = "SELECT * FROM classes WHERE class_Id = ?";
+        String sql = "SELECT * FROM groups WHERE group_Id = ?";
 
         try (Connection conn = Conexion.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -60,8 +60,8 @@ public class GroupDAO {
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     Group group = new Group();
-                    group.setGroupId(rs.getInt("class_Id"));
-                    group.setGroupName(rs.getString("class_name"));
+                    group.setGroupId(rs.getInt("group_Id"));
+                    group.setGroupName(rs.getString("group_name"));
                     group.setEducationalStage(rs.getString("educationalStage"));
                     group.setNumberOfStudents(rs.getInt("numberOfStudents"));
                     return group;
@@ -72,7 +72,7 @@ public class GroupDAO {
     }
 
     public void deleteGroup(int groupId) throws SQLException {
-        String sql = "DELETE FROM classes WHERE class_Id = ?";
+        String sql = "DELETE FROM groups WHERE group_Id = ?";
 
         try (Connection conn = Conexion.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -83,7 +83,7 @@ public class GroupDAO {
     }
 
     public boolean hasTrips(int groupId) throws SQLException {
-        String sql = "SELECT COUNT(*) FROM trips WHERE class_Id = ?";
+        String sql = "SELECT COUNT(*) FROM trips WHERE group_Id = ?";
 
         try (Connection conn = Conexion.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -99,7 +99,7 @@ public class GroupDAO {
     }
 
     public boolean existsGroupName(String groupName) throws SQLException {
-        String sql = "SELECT COUNT(*) FROM classes WHERE class_name = ?";
+        String sql = "SELECT COUNT(*) FROM groups WHERE group_name = ?";
 
         try (Connection conn = Conexion.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {

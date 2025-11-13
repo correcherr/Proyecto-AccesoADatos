@@ -1,14 +1,14 @@
 package com.mongo.app;
 
-import com.mongo.controller.MainMenuController;
+import com.mongo.controller.MainController;
 import com.mongo.connection.Conexion;
 import com.mongo.connection.MongoConnection;
 
 public class Application {
-    private MainMenuController menuController;
+    private MainController menuController;
 
     public Application() {
-        this.menuController = new MainMenuController();
+        this.menuController = new MainController();
     }
 
     public void start() {

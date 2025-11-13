@@ -29,8 +29,8 @@ public class ProfessorService {
                 System.out.println("Error: La fecha de nacimiento debe ser anterior a la fecha actual.");
                 return false;
             }
-            if (phone == null || phone.trim().isEmpty()) {
-                System.out.println("Error: El teléfono no puede estar vacío.");
+            if (phone == null || phone.trim().isEmpty() || phone.length() != 9) {
+                System.out.println("Error: El teléfono no puede estar vacío y tiene que tener exactamente 9 dígitos.");
                 return false;
             }
 
@@ -42,7 +42,7 @@ public class ProfessorService {
 
             Professor professor = new Professor(name.trim(), surname.trim(), birthDate, phone.trim());
             professorDAO.createProfessor(professor);
-            System.out.println("Profesor creado exitosamente con ID: " + professor.getTeacherId());
+            System.out.println("Profesor creado exitosamente con ID: " + professor.getProfessorId());
             return true;
 
         } catch (SQLException e) {

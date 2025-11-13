@@ -11,7 +11,7 @@ import java.util.List;
 public class ProfessorDAO {
 
     public void createProfessor(Professor professor) throws SQLException {
-        String sql = "INSERT INTO teachers (teacher_name, teacher_surname, teacher_birthDate, teacher_phone) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO professors (professor_name, professor_surname, professor_birthDate, professor_phone) VALUES (?, ?, ?, ?)";
 
         try (Connection conn = Conexion.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -25,7 +25,7 @@ public class ProfessorDAO {
             if (affectedRows > 0) {
                 try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
                     if (generatedKeys.next()) {
-                        professor.setTeacherId(generatedKeys.getInt(1));
+                        professor.setProfessorId(generatedKeys.getInt(1));
                     }
                 }
             }
@@ -34,7 +34,7 @@ public class ProfessorDAO {
 
     public List<Professor> getAllProfessors() throws SQLException {
         List<Professor> professors = new ArrayList<>();
-        String sql = "SELECT * FROM teachers ORDER BY teacher_name, teacher_surname";
+        String sql = "SELECT * FROM professors ORDER BY professor_name, professor_surname";
 
         try (Connection conn = Conexion.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql);
@@ -42,11 +42,11 @@ public class ProfessorDAO {
 
             while (rs.next()) {
                 Professor professor = new Professor();
-                professor.setTeacherId(rs.getInt("teacher_Id"));
-                professor.setName(rs.getString("teacher_name"));
-                professor.setSurname(rs.getString("teacher_surname"));
-                professor.setBirthDate(rs.getDate("teacher_birthDate").toLocalDate());
-                professor.setPhone(rs.getString("teacher_phone"));
+                professor.setProfessorId(rs.getInt("professor_Id"));
+                professor.setName(rs.getString("professor_name"));
+                professor.setSurname(rs.getString("professor_surname"));
+                professor.setBirthDate(rs.getDate("professor_birthDate").toLocalDate());
+                professor.setPhone(rs.getString("professor_phone"));
                 professors.add(professor);
             }
         }
@@ -54,7 +54,7 @@ public class ProfessorDAO {
     }
 
     public Professor getProfessorById(int id) throws SQLException {
-        String sql = "SELECT * FROM teachers WHERE teacher_Id = ?";
+        String sql = "SELECT * FROM professors WHERE professor_Id = ?";
 
         try (Connection conn = Conexion.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -63,11 +63,11 @@ public class ProfessorDAO {
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     Professor professor = new Professor();
-                    professor.setTeacherId(rs.getInt("teacher_Id"));
-                    professor.setName(rs.getString("teacher_name"));
-                    professor.setSurname(rs.getString("teacher_surname"));
-                    professor.setBirthDate(rs.getDate("teacher_birthDate").toLocalDate());
-                    professor.setPhone(rs.getString("teacher_phone"));
+                    professor.setProfessorId(rs.getInt("professor_Id"));
+                    professor.setName(rs.getString("professor_name"));
+                    professor.setSurname(rs.getString("professor_surname"));
+                    professor.setBirthDate(rs.getDate("professor_birthDate").toLocalDate());
+                    professor.setPhone(rs.getString("professor_phone"));
                     return professor;
                 }
             }
@@ -76,7 +76,7 @@ public class ProfessorDAO {
     }
 
     public boolean existsProfessorWithPhone(String phone) throws SQLException {
-        String sql = "SELECT COUNT(*) FROM teachers WHERE teacher_phone = ?";
+        String sql = "SELECT COUNT(*) FROM professors WHERE professor_phone = ?";
 
         try (Connection conn = Conexion.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
