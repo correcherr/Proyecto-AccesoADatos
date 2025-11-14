@@ -10,7 +10,7 @@ public class Trip {
     private int duration;
     private LocalDate date;
     private double cost;
-    private String status; 
+    private boolean status;
     private List<Professor> accompanyingProfessors;
     private String groupName;
 
@@ -23,7 +23,7 @@ public class Trip {
         this.duration = duration;
         this.date = date;
         this.cost = cost;
-        this.status = null;
+        this.status = false;
     }
 
     public int getTripId() {
@@ -74,16 +74,16 @@ public class Trip {
         this.cost = cost;
     }
 
-    public String getStatus() {
+    public boolean isStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(boolean status) {
         this.status = status;
     }
 
     public boolean isFinished() {
-        return status != null && ("Finalizada".equalsIgnoreCase(status) || "Confirmada".equalsIgnoreCase(status));
+        return status;
     }
 
     public List<Professor> getAccompanyingProfessors() {
@@ -104,6 +104,7 @@ public class Trip {
 
     @Override
     public String toString() {
-        return tripId + " - " + destination + " (" + date + ") - " + status;
+        String statusStr = status ? "Finalizada" : "Pendiente";
+        return tripId + " - " + destination + " (" + date + ") - " + statusStr;
     }
 }

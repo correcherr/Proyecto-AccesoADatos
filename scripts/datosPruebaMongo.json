@@ -1,0 +1,6 @@
+[
+  { "tripId": 1, "comment": "Excursión fantástica, todo muy bien organizado.", "rating": 9, "reviewDate": { "$date": "2025-11-14T10:30:00Z" } },
+  { "tripId": 2, "comment": "Interesante, pero demasiado tiempo de viaje.", "rating": 6, "reviewDate": { "$date": "2025-11-13T15:00:00Z" } },
+  { "tripId": 3, "comment": "Excelente. Recomendable al 100%.", "rating": 10, "reviewDate": { "$date": "2025-11-12T09:00:00Z" } },
+  { "tripId": 4, "comment": "No cumplió expectativas, mala organización.", "rating": 3, "reviewDate": { "$date": "2025-11-11T14:20:00Z" } }
+]

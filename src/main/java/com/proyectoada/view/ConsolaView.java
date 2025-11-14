@@ -16,8 +16,8 @@ public class ConsolaView {
                 4. Alta excursió
                 5. Baixa excursió
                 6. Modificació excursió
-                7. Llistat total d’excursions amb els noms i cognoms dels professors responsables de cadascuna.
-                8. Llistat d’excursions finalitzades que s’han realitzat entre dues dates donades.
+                7. Llistat total d'excursions amb els noms i cognoms dels professors responsables de cadascuna.
+                8. Llistat d'excursions finalitzades que s'han realitzat entre dues dates donades.
                 9. Fer ressenya
                 10. Llistat de ressenyes donat rang de puntuació.
                 11. Eixir

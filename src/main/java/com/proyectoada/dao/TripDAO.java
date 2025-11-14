@@ -28,7 +28,7 @@ public class TripDAO implements Dao<Trip, Integer> {
                 stmt.setInt(3, trip.getDuration());
                 stmt.setDate(4, Date.valueOf(trip.getDate()));
                 stmt.setDouble(5, trip.getCost());
-                stmt.setString(6, trip.getStatus() != null ? trip.getStatus() : "Pendiente");
+                stmt.setString(6, trip.isStatus() ? "Finalizada" : "Pendiente");
 
                 int affectedRows = stmt.executeUpdate();
                 if (affectedRows == 0) {
@@ -83,7 +83,8 @@ public class TripDAO implements Dao<Trip, Integer> {
                     trip.setDuration(rs.getInt("trip_duration"));
                     trip.setDate(rs.getDate("trip_date").toLocalDate());
                     trip.setCost(rs.getDouble("trip_cost"));
-                    trip.setStatus(rs.getString("trip_status"));
+                    String s = rs.getString("trip_status");
+                    trip.setStatus(s != null && ("Finalizada".equalsIgnoreCase(s) || "Pendiente".equalsIgnoreCase(s)));
                     return Optional.of(trip);
                 }
             }
@@ -115,7 +116,8 @@ public class TripDAO implements Dao<Trip, Integer> {
                 trip.setDuration(rs.getInt("trip_duration"));
                 trip.setDate(rs.getDate("trip_date").toLocalDate());
                 trip.setCost(rs.getDouble("trip_cost"));
-                trip.setStatus(rs.getString("trip_status"));
+                String s = rs.getString("trip_status");
+                trip.setStatus(s != null && ("Finalizada".equalsIgnoreCase(s) || "Pendiente".equalsIgnoreCase(s)));
                 trip.setGroupName(rs.getString("group_name"));
                 trips.add(trip);
             }
@@ -182,7 +184,8 @@ public class TripDAO implements Dao<Trip, Integer> {
                     trip.setDuration(rs.getInt("trip_duration"));
                     trip.setDate(rs.getDate("trip_date").toLocalDate());
                     trip.setCost(rs.getDouble("trip_cost"));
-                    trip.setStatus(rs.getString("trip_status"));
+                    String s = rs.getString("trip_status");
+                    trip.setStatus(s != null && ("Finalizada".equalsIgnoreCase(s) || "Pendiente".equalsIgnoreCase(s)));
                     trip.setGroupName(rs.getString("group_name"));
                     trips.add(trip);
                 }

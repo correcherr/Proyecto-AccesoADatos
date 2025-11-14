@@ -19,7 +19,7 @@ public class GroupController {
         view.info("\n=== ALTA DE GRUPO ===");
         
         String groupName = view.pedir("Nombre del grupo");
-        String educationalStage = view.pedir("Etapa educativa (ESO/Batxillerat/FP)");
+        String educationalStage = view.pedir("Etapa educativa (ESO/Bachillerato/FP)");
         int numberOfStudents = view.pedirEntero("Número de estudiantes");
         
         boolean success = groupService.createGroup(groupName, educationalStage, numberOfStudents);

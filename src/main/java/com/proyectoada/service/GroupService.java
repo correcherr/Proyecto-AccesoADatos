@@ -18,8 +18,8 @@ public class GroupService {
             System.out.println("Error: El nombre del grupo no puede estar vacío.");
             return false;
         }
-        if (!educationalStage.equals("ESO") && !educationalStage.equals("Batxillerat") && !educationalStage.equals("FP")) {
-            System.out.println("Error: La etapa educativa debe ser ESO, Batxillerat o FP.");
+        if (!educationalStage.equals("Primaria") && !educationalStage.equals("ESO") && !educationalStage.equals("Bachillerato") && !educationalStage.equals("FP")) {
+            System.out.println("Error: La etapa educativa debe ser Primaria, ESO, Bachillerato o FP.");
             return false;
         }
         if (numberOfStudents <= 0) {
