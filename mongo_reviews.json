@@ -1,0 +1,10 @@
+[
+  { "tripId": 1, "comment": "Excursión fantástica, todo muy bien organizado.", "rating": 9, "reviewDate": { "$date": "2025-11-14T10:30:00Z" } },
+  { "tripId": 2, "comment": "Interesante, pero demasiado tiempo de viaje.", "rating": 6, "reviewDate": { "$date": "2025-11-13T15:00:00Z" } },
+  { "tripId": 3, "comment": "Excelente. Recomendable al 100%.", "rating": 10, "reviewDate": { "$date": "2025-11-12T09:00:00Z" } },
+  { "tripId": 4, "comment": "No cumplió expectativas, mala organización.", "rating": 3, "reviewDate": { "$date": "2025-11-11T14:20:00Z" } },
+  { "tripId": 5, "comment": "Buena experiencia, algunos detalles a mejorar.", "rating": 7, "reviewDate": { "$date": "2025-11-10T12:00:00Z" } },
+  { "tripId": 6, "comment": "Muy didáctica y entretenida para el alumnado.", "rating": 8, "reviewDate": { "$date": "2025-11-09T11:15:00Z" } },
+  { "tripId": 7, "comment": "Mal tiempo y actividad cancelada.", "rating": 1, "reviewDate": { "$date": "2025-11-08T08:30:00Z" } },
+  { "tripId": 8, "comment": "Aceptable, pero caro para lo ofrecido.", "rating": 5, "reviewDate": { "$date": "2025-11-07T16:45:00Z" } }
+]
