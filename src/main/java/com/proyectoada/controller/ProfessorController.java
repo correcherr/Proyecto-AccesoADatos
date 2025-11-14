@@ -1,57 +1,59 @@
 package com.proyectoada.controller;
 
-import com.proyectoada.service.ProfessorService;
-import com.proyectoada.view.ConsoleView;
-
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.util.Scanner;
+import java.util.List;
+
+import com.proyectoada.model.mysql.Professor;
+import com.proyectoada.service.ProfessorService;
+import com.proyectoada.view.ConsolaView;
 
 public class ProfessorController {
-    private Scanner scanner;
-    private ConsoleView view;
+    private ConsolaView view;
     private ProfessorService professorService;
     
-    public ProfessorController() {
-        this.scanner = new Scanner(System.in);
-        this.view = new ConsoleView();
-        this.professorService = new ProfessorService();
+    public ProfessorController(ConsolaView view, ProfessorService professorService) {
+        this.view = view;
+        this.professorService = professorService;
     }
     
     public void createProfessor() {
-        System.out.println("\n=== ALTA DE PROFESOR ===");
+        view.info("\n=== ALTA DE PROFESOR ===");
         
-        System.out.print("Nombre: ");
-        String name = scanner.nextLine();
-        
-        System.out.print("Apellidos: ");
-        String surname = scanner.nextLine();
-        
-        LocalDate birthDate = getDateInput("Fecha de nacimiento (dd/MM/yyyy): ");
-        if (birthDate == null) return;
-        
-        System.out.print("Teléfono: ");
-        String phone = scanner.nextLine();
+        String name = view.pedir("Nombre");
+        String surname = view.pedir("Apellidos");
+        LocalDate birthDate = view.pedirFecha("Fecha de nacimiento (YYYY-MM-DD)");
+        String phone = view.pedir("Teléfono");
         
         boolean success = professorService.createProfessor(name, surname, birthDate, phone);
         if (success) {
-            System.out.println("Profesor creado exitosamente.");
+            view.info("Profesor creado exitosamente.");
         } else {
-            System.out.println("Error al crear el profesor.");
+            view.error("Error al crear el profesor.");
         }
     }
     
-    private LocalDate getDateInput(String message) {
-        while (true) {
-            try {
-                System.out.print(message);
-                String dateStr = scanner.nextLine();
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-                return LocalDate.parse(dateStr, formatter);
-            } catch (DateTimeParseException e) {
-                System.out.println("Error: Formato de fecha inválido. Use dd/MM/yyyy");
-            }
+    public List<Professor> getAllProfessors() {
+        return professorService.getAllProfessors();
+    }
+    
+    public Professor getProfessorById(int id) {
+        return professorService.getProfessorById(id);
+    }
+    
+    public void showProfessors(List<Professor> professors) {
+        if (professors.isEmpty()) {
+            view.info("No hay profesores registrados.");
+            return;
+        }
+        
+        view.info("\n--- LISTA DE PROFESORES ---");
+        view.info("ID | Nombre y Apellidos | Teléfono");
+        view.info("----------------------------------");
+        for (Professor professor : professors) {
+            view.info(String.format("%-3d | %-20s | %s",
+                    professor.getProfessorId(),
+                    professor.getName() + " " + professor.getSurname(),
+                    professor.getPhone()));
         }
     }
 }

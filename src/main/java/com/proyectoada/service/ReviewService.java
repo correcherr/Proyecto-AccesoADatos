@@ -1,10 +1,10 @@
 package com.proyectoada.service;
 
-import com.proyectoada.dao.mongo.ReviewDAO;
-import com.proyectoada.model.mongo.Review;
-
 import java.util.Date;
 import java.util.List;
+
+import com.proyectoada.dao.mongo.ReviewDAO;
+import com.proyectoada.model.mongo.Review;
 
 public class ReviewService {
     private ReviewDAO reviewDAO;
@@ -13,28 +13,31 @@ public class ReviewService {
         this.reviewDAO = new ReviewDAO();
     }
     
+    private boolean validarCamposReview(String comment, int rating) {
+        if (comment == null || comment.trim().isEmpty()) {
+            System.out.println("Error: El comentario no puede estar vacío.");
+            return false;
+        }
+        if (rating < 1 || rating > 10) {
+            System.out.println("Error: La puntuación debe estar entre 1 y 10.");
+            return false;
+        }
+        return true;
+    }
+    
     public boolean createReview(int tripId, String comment, int rating) {
         try {
-            // Validaciones
-            if (comment == null || comment.trim().isEmpty()) {
-                System.out.println("Error: El comentario no puede estar vacío.");
-                return false;
-            }
-            if (rating < 1 || rating > 10) {
-                System.out.println("Error: La puntuación debe estar entre 1 y 10.");
-                return false;
-            }
-            
-            // Verificar si ya existe reseña para esta excursión
-            if (reviewDAO.existsReviewForTrip(tripId)) {
-                System.out.println("Error: Ya existe una reseña para esta excursión.");
+            if (!validarCamposReview(comment, rating)) {
                 return false;
             }
             
             Review review = new Review(tripId, comment.trim(), rating, new Date());
-            reviewDAO.createReview(review);
-            System.out.println("Reseña creada exitosamente.");
-            return true;
+            Integer result = reviewDAO.create(review);
+            if (result != null) {
+                System.out.println("Reseña creada exitosamente.");
+                return true;
+            }
+            return false;
             
         } catch (Exception e) {
             System.err.println("Error al crear reseña: " + e.getMessage());

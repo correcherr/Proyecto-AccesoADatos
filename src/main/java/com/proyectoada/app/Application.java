@@ -1,30 +1,27 @@
 package com.proyectoada.app;
 
-import com.proyectoada.controller.MainMenuController;
 import com.proyectoada.connection.Conexion;
 import com.proyectoada.connection.MongoConnection;
+import com.proyectoada.controller.MainController;
 
 public class Application {
-    private MainMenuController menuController;
-    
+    private MainController menuController;
+
     public Application() {
-        this.menuController = new MainMenuController();
+        this.menuController = new MainController();
     }
-    
+
     public void start() {
-        // Inicializar conexiones
         try {
-            Conexion.getConnection(); // Test MySQL
-            MongoConnection.getDatabase(); // Test MongoDB
+            Conexion.getConnection();
+            MongoConnection.getDatabase();
             System.out.println("Conexiones establecidas correctamente.");
-            
-            // Iniciar menú principal
-            menuController.showMainMenu();
-            
+
+            menuController.menu();
+
         } catch (Exception e) {
             System.err.println("Error al conectar con las bases de datos: " + e.getMessage());
         } finally {
-            // Cerrar conexiones al salir
             Conexion.closeConnection();
             MongoConnection.closeConnection();
         }
