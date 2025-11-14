@@ -19,7 +19,6 @@ public class Professor {
         this.phone = phone;
     }
 
-    // Getters y Setters
     public int getProfessorId() {
         return professorId;
     }

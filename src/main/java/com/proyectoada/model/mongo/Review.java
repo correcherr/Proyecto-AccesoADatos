@@ -18,7 +18,6 @@ public class Review {
         this.reviewDate = reviewDate;
     }
 
-    // Getters y Setters
     public int getTripId() {
         return tripId;
     }

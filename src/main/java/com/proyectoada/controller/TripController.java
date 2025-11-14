@@ -28,7 +28,6 @@ public class TripController {
     public void createTrip() {
         view.info("\n=== ALTA DE EXCURSIÓN ===");
         
-        // Seleccionar grupo
         List<Group> groups = groupService.getAllGroups();
         if (groups.isEmpty()) {
             view.error("No hay grupos registrados. Debe crear un grupo primero.");
@@ -44,7 +43,6 @@ public class TripController {
         LocalDate date = view.pedirFecha("Fecha de la excursión (YYYY-MM-DD)");
         double cost = view.pedirDouble("Coste");
         
-        // Asignar profesores acompañantes
         List<Professor> selectedProfessors = assignProfessorsToTrip();
         if (selectedProfessors.isEmpty()) {
             view.error("Debe asignar al menos un profesor.");

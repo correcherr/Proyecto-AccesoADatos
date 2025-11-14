@@ -26,7 +26,6 @@ public class Trip {
         this.status = null;
     }
 
-    // Getters y Setters 
     public int getTripId() {
         return tripId;
     }
@@ -75,7 +74,6 @@ public class Trip {
         this.cost = cost;
     }
 
-    // CORREGIDO: Cambiado a String
     public String getStatus() {
         return status;
     }
@@ -84,7 +82,6 @@ public class Trip {
         this.status = status;
     }
 
-    // Método auxiliar para verificar si está finalizada
     public boolean isFinished() {
         return status != null && ("Finalizada".equalsIgnoreCase(status) || "Confirmada".equalsIgnoreCase(status));
     }

@@ -17,7 +17,6 @@ public class TripService {
 
     private boolean validateTripFields(String destination, int duration, LocalDate date, double cost,
             List<Professor> professors) {
-        // Validación para creación
         if (destination == null || destination.trim().isEmpty()) {
             System.out.println("Error: El destino no puede estar vacío.");
             return false;

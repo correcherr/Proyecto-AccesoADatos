@@ -85,7 +85,7 @@ public class GroupDAO implements Dao<Group, Integer> {
 
     @Override
     public boolean update(Group t) {
-        // No implementado para grupos
+        // No hace falta para grupos
         return false;
     }
 

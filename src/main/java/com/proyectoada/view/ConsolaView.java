@@ -31,9 +31,7 @@ public class ConsolaView {
         return sc.nextLine().trim();
     }
 
-    /**
-     * Pide un número entero al usuario, VALIDANDO que lo introduzca correctamente.
-     */
+
     public int pedirEntero(String etiqueta) {
         System.out.print(etiqueta + ": ");
         return leerEntero();
@@ -53,16 +51,12 @@ public class ConsolaView {
         System.out.println(msg);
     }
 
-    /**
-     * Este otro metodo es para mostrar los mensajes de errorr.
-     */
+
     public void error(String msg) {
         System.err.println("ERROR: " + msg);
     }
 
-    /**
-     * Lee un número entero desde teclado y repite mientras no sea válido.
-     */
+
     private int leerEntero() {
         while (true) {
             String s = sc.nextLine().trim();

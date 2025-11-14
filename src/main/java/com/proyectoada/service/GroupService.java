@@ -60,7 +60,6 @@ public class GroupService {
 
     public boolean deleteGroup(int groupId) {
         try {
-            // Verificar si tiene excursiones asociadas
             if (groupDAO.hasTrips(groupId)) {
                 System.out.println("Error: No se puede eliminar el grupo porque tiene excursiones asociadas.");
                 return false;

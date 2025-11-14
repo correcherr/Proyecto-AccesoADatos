@@ -88,13 +88,13 @@ public class ProfessorDAO implements Dao<Professor, Integer> {
 
     @Override
     public boolean update(Professor t) {
-        // No implementado para profesores
+        // No hace falta para profesores
         return false;
     }
 
     @Override
     public boolean delete(Integer id) {
-        // No implementado para profesores
+        // No hace falta para profesores
         return false;
     }
 
